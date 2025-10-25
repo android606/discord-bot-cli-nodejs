@@ -32,6 +32,14 @@ See [.github/workflows/migrate_files.yml](.github/workflows/migrate_files.yml) f
 
 These files were originally developed as part of PR #5 in the [android606/dita-ot](https://github.com/android606/dita-ot) repository and are maintained here for easier access and distribution.
 
+## Security Considerations
+
+⚠️ **Important**: Some files in the copied folders may contain example or default Discord application credentials. Always:
+- Replace these with your own Discord application credentials
+- Never commit real credentials to version control
+- Use environment variables or secure configuration management for sensitive data
+- Review and update any hardcoded values before deploying
+
 ## License
 
 Please refer to the LICENSE files in each subdirectory for specific licensing information.
