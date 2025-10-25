@@ -1,38 +1,41 @@
-name: Migrate Discord Bot Files
+# Migrating Files Workflow
+
+name: Migrate Files
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *' # Schedule to run daily at midnight
+  push:
+    branches:
+      - main
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout discord-bot-cli-nodejs repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Clone the dita-ot repository
-        run: git clone https://github.com/android606/dita-ot.git
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-      - name: Checkout PR #5
+      - name: Install dependencies
         run: |
-          cd dita-ot
+          npm install
 
-      - name: Copy relevant files
+      - name: Run migration script
         run: |
-          cp -r dita-ot/discord-* .
-          # Adjust the above line to copy specific files or directories
+          npm run migrate
 
-      - name: Commit and push changes
+      - name: Copy files
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "android606@gmail.com"
+          cp -R ./source/path/. ./destination/path/
+          # Ensure to replace the source and destination with actual paths
+
+      - name: Commit migrated files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Automated migration of files from dita-ot PR #5"
-          git push
-
-      - name: Error Handling
-        if: failure()
-        run: echo "An error occurred during the migration process."
+          git commit -m "Migrated files" || echo "No changes to commit"
