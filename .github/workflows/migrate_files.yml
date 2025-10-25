@@ -19,8 +19,6 @@ jobs:
       - name: Checkout PR #5
         run: |
           cd dita-ot
-          git fetch origin pull/5/head:pr-5
-          git checkout pr-5
 
       - name: Copy relevant files
         run: |
@@ -30,7 +28,7 @@ jobs:
       - name: Commit and push changes
         run: |
           git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          git config user.email "android606@gmail.com"
           git add .
           git commit -m "Automated migration of files from dita-ot PR #5"
           git push
