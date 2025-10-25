@@ -24,7 +24,7 @@ jobs:
 
       - name: Copy relevant files
         run: |
-          cp -r dita-ot/path/to/modified/files/* ./path/to/destination/
+          cp -r dita-ot/discord-* .
           # Adjust the above line to copy specific files or directories
 
       - name: Commit and push changes
