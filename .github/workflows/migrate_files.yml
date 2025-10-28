@@ -1,41 +1,54 @@
-# Migrating Files Workflow
+# Migrate Discord Bot Files Workflow
 
-name: Migrate Files
+name: Migrate Discord Bot Files
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:  # Allow manual trigger
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sunday at midnight
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Checkout discord-bot-cli-nodejs repository
+        uses: actions/checkout@v4
         with:
-          node-version: '14'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
+      - name: Clone dita-ot repository
         run: |
-          npm install
+          git clone https://github.com/android606/dita-ot.git /tmp/dita-ot
 
-      - name: Run migration script
+      - name: Copy discord-* folders
         run: |
-          npm run migrate
+          # Remove existing discord-* folders if they exist
+          rm -rf discord-bot-cli discord-bot-cli-js
+          
+          # Copy discord-* folders from dita-ot to current repository
+          if [ -d "/tmp/dita-ot/discord-bot-cli" ]; then
+            cp -R /tmp/dita-ot/discord-bot-cli .
+            echo "Copied discord-bot-cli"
+          fi
+          
+          if [ -d "/tmp/dita-ot/discord-bot-cli-js" ]; then
+            cp -R /tmp/dita-ot/discord-bot-cli-js .
+            echo "Copied discord-bot-cli-js"
+          fi
 
-      - name: Copy files
+      - name: Check for changes
+        id: git-check
         run: |
-          cp -R ./source/path/. ./destination/path/
-          # Ensure to replace the source and destination with actual paths
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
 
-      - name: Commit migrated files
+      - name: Commit and push changes
+        if: steps.git-check.outputs.changes == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Migrated files" || echo "No changes to commit"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add discord-bot-cli discord-bot-cli-js
+          git commit -m "Sync discord-* folders from dita-ot repository"
+          git push
